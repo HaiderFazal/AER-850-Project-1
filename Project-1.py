@@ -26,6 +26,7 @@ y_train = strat_df_train["Step"]
 X_test = strat_df_test.drop("Step", axis = 1)
 y_test = strat_df_test["Step"]
 
+
 #Step 2 - Data Visualization
 
 # 3D plot
