@@ -102,14 +102,14 @@ best_model_rf = grid_search_rf.best_estimator_
 y_train_pred_rf = best_model_rf.predict(X_train)
 y_test_pred_rf = best_model_rf.predict(X_test)
 
-# Model 4 - RandomizedSearchCV Random Forest Model
+# Model 4 -  SVC RandomizedSearchCV Model
 svc_random = SVC()
 param_grid_svc_random = {
     'kernel': ['linear', 'rbf'],
     'C': [0.1, 1, 10, 100],
     'gamma': ['scale', 'auto']
 }
-random_search_svc = RandomizedSearchCV(svc, param_grid_svc, cv=5, scoring='neg_mean_absolute_error', n_jobs=-1,)
+random_search_svc = RandomizedSearchCV(svc, param_grid_svc_random, cv=10, scoring='neg_mean_absolute_error', n_jobs=-1,random_state=42)
 random_search_svc.fit(X_train, y_train)
 best_model_svc_random = random_search_svc.best_estimator_
 y_train_pred_svc_random = best_model_svc.predict(X_train)
@@ -118,7 +118,7 @@ print("Best SVM Model using RandomizedSearchCV:", best_model_svc_random)
 
 #Step 5: Model Performance Analysis
   
-#SVC Model Performance 
+#SVC Model Performance
 for i in range(5):
    print("(SVC) Step Predictions:", y_train_pred_svc[i], "(SVC) Step Actual values:", y_train[i])
 
@@ -126,13 +126,13 @@ f1_train_SVC = f1_score(y_train, y_train_pred_svc, average='weighted')
 precision_train_SVC = precision_score(y_train, y_train_pred_svc, average='weighted')
 accuracy_train_SVC = accuracy_score(y_train, y_train_pred_svc)
 
-#Printing Evaluation Set
+
 print("SVC Training Set Evaluation:")
 print("F1 Score: ", f1_train_SVC)
 print("Precision: ", precision_train_SVC)
 print("Accuracy: ", accuracy_train_SVC)
 
-# Decision Tree Model Performance Analysis
+# Decision Tree Model Performance 
 for i in range(5):
    print("(DT) Step Predictions:", y_train_pred_dt[i], "(DT) Step Actual values:", y_train[i])
 
@@ -140,13 +140,13 @@ f1_train_DT = f1_score(y_train, y_train_pred_dt, average='weighted')
 precision_train_DT = precision_score(y_train, y_train_pred_dt, average='weighted')
 accuracy_train_DT = accuracy_score(y_train, y_train_pred_dt)
 
-#Printing Evaluation Set
+
 print("Decision Tree Set Evaluation:")
 print("F1 Score: ", f1_train_DT)
 print("Precision: ", precision_train_DT)
 print("Accuracy: ", accuracy_train_DT)
 
-# Random Forest Model Performance Analysis
+# Random Forest Model Performance 
 for i in range(5):
    print("(RF) Step Predictions:", y_train_pred_rf[i], "(RF) Step Actual values:", y_train[i])
 
@@ -154,13 +154,27 @@ f1_train_RF = f1_score(y_train, y_train_pred_rf, average='weighted')
 precision_train_RF = precision_score(y_train, y_train_pred_rf, average='weighted')
 accuracy_train_RF = accuracy_score(y_train, y_train_pred_rf)
 
-#Printing Evaluation Set
+
 print("Random Forest Set Evaluation:")
 print("F1 Score: ", f1_train_RF)
 print("Precision: ",precision_train_RF)
 print("Accuracy: ", accuracy_train_RF)
 
-# Plot confusion matrix rf
+# SVC RandomizedSearchCV Model Performance 
+for i in range(5):
+   print("(Randomized SVC ) Step Predictions:", y_train_pred_svc_random[i], "(Randomized SVC) Step Actual values:", y_train[i])
+
+f1_train_random = f1_score(y_train, y_train_pred_svc_random, average='weighted')
+precision_train_random = precision_score(y_train, y_train_pred_svc_random, average='weighted')
+accuracy_train_random = accuracy_score(y_train, y_train_pred_svc_random)
+
+
+print("Randomized SVC Set Evaluation:")
+print("F1 Score: ", f1_train_random)
+print("Precision: ",precision_train_random)
+print("Accuracy: ", accuracy_train_random)
+
+# Plot Confusion Matrix for Selected Model = (Random Forest)
 conf_matrix_train_RF = confusion_matrix(y_train, y_train_pred_rf)
 
 plt.figure(figsize=(8, 6))
@@ -169,21 +183,6 @@ plt.title("Confusion Matrix - Training Data")
 plt.xlabel("Predicted Labels")
 plt.ylabel("True Labels")
 plt.show()
-
-# SVC RandomizedSearchCV Model Performance Analysis
-
-#Printing Evaluation Set
-for i in range(5):
-   print("(Randomized) Step Predictions:", y_train_pred_svc_random[i], "(Randomized) Step Actual values:", y_train[i])
-
-f1_train_random = f1_score(y_train, y_train_pred_svc_random, average='weighted')
-precision_train_random = precision_score(y_train, y_train_pred_svc_random, average='weighted')
-accuracy_train_random = accuracy_score(y_train, y_train_pred_svc_random)
-
-print("Randomized SVC Set Evaluation:")
-print("F1 Score: ", f1_train_random)
-print("Precision: ",precision_train_random)
-print("Accuracy: ", accuracy_train_random)
 
 #Step 6: Stacked Model Performance Analysis
 
