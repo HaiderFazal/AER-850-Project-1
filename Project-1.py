@@ -13,6 +13,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
 from sklearn.ensemble import StackingClassifier
 from sklearn.model_selection import RandomizedSearchCV
+from scipy.stats import uniform
 import joblib
 
 #Step 1: Data Processing
@@ -106,7 +107,7 @@ y_test_pred_rf = best_model_rf.predict(X_test)
 svc_random = SVC()
 param_grid_svc_random = {
     'kernel': ['linear', 'rbf'],
-    'C': [0.1, 1, 10, 100],
+    'C': uniform(0.1,100),
     'gamma': ['scale', 'auto']
 }
 random_search_svc = RandomizedSearchCV(svc, param_grid_svc_random, cv=10, scoring='neg_mean_absolute_error', n_jobs=-1,random_state=42)
