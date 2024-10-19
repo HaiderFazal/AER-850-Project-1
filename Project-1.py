@@ -2,39 +2,31 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit
-from sklearn.model_selection import cross_val_score
-from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import f1_score, precision_score, accuracy_score
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import confusion_matrix
+from sklearn.ensemble import StackingClassifier
+import joblib
 
-#Step 1 - Data Processing/Data Shuffling and Splitting
+#Step 1: Data Processing
 
-df = pd.read_csv("C:/Users/Saira/Desktop/Uni/Year 4/Sem 1/AER-850\Project_1_Data.csv")
+df = pd.read_csv("C:/Users/Saira/Desktop/Uni/Year 4/Sem 1/AER-850/Project_1_Data.csv")
 print(df.info())
 
-my_splitter = StratifiedShuffleSplit(n_splits = 1, test_size = 0.2, random_state = 333)
-for train_index, test_index in my_splitter.split(df, df["Step"]):
-    strat_df_train = df.loc[train_index].reset_index(drop=True)
-    strat_df_test = df.loc[test_index].reset_index(drop=True)
-
-X_train = strat_df_train.drop("Step", axis = 1)
-y_train = strat_df_train["Step"]
-X_test = strat_df_test.drop("Step", axis = 1)
-y_test = strat_df_test["Step"]
-
-
-#Step 2 - Data Visualization
+#Step 2: Data Visualization
 
 # 3D plot
 fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
 
 # Plotting X, Y, Z against Step
-scatter_plot=ax.scatter(X_train['X'], X_train['Y'], X_train['Z'], c=y_train, cmap='magma')
+scatter_plot=ax.scatter(df['X'], df['Y'], df['Z'], c=df['Step'], cmap='magma')
 
 # Labels
 ax.set_xlabel('X')
@@ -45,38 +37,171 @@ cbar = plt.colorbar(scatter_plot)
 cbar.set_label('Step')
 plt.show()
 
-#Step 3 - Correlation Analysis
+#Step 3: Correlation Analysis
 
-corr=X_train.corr()
-sns.heatmap(corr,cmap='rocket',annot=True)
+corr_matrix = df.corr()
+sns.heatmap(corr_matrix,cmap='Reds',annot=True)
 plt.show()
 
-#Step 4 - Classification Model Development/ Engineering
+#Step 4: Classification Model Development/ Engineering
 
-my_model1=LinearRegression()
-my_model1.fit(X_train,y_train)
-y_pred_train1 = my_model1.predict(X_train)
+# Data splitting
+my_splitter = StratifiedShuffleSplit(n_splits = 1, test_size = 0.2, random_state = 777)
+for train_index, test_index in my_splitter.split(df, df["Step"]):
+    strat_df_train = df.loc[train_index].reset_index(drop=True)
+    strat_df_test = df.loc[test_index].reset_index(drop=True)
 
+X_train = strat_df_train.drop("Step", axis = 1)
+y_train = strat_df_train["Step"]
+X_test = strat_df_test.drop("Step", axis = 1)
+y_test = strat_df_test["Step"]
+
+# Model 1 - Support Vector Machine (SVM)
+svc = SVC()
+param_grid_svc = {
+    'kernel': ['linear', 'rbf'],
+    'C': [0.1, 1, 10, 100],
+    'gamma': ['scale', 'auto']
+}
+grid_search_svc = GridSearchCV(svc, param_grid_svc, cv=5, scoring='neg_mean_absolute_error', n_jobs=-1)
+grid_search_svc.fit(X_train, y_train)
+best_model_svc = grid_search_svc.best_estimator_
+#print("Best SVM Model:", best_model_svc)
+y_train_pred_svc = best_model_svc.predict(X_train)
+y_test_pred_svc = best_model_svc.predict(X_test)
+
+# Model 2 - Decision Tree
+decision_tree = DecisionTreeClassifier(random_state=42)
+param_grid_dt = {
+    'max_depth': [None, 10, 20, 30],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1,2,4]
+}
+grid_search_dt = GridSearchCV(decision_tree, param_grid_dt, cv=15, scoring='neg_mean_absolute_error', n_jobs=-1)
+grid_search_dt.fit(X_train, y_train)
+#print(grid_search_dt.best_params_)
+best_model_dt = grid_search_dt.best_estimator_
+#print("Best Decision Tree Model:", best_model_dt)
+y_train_pred_dt = best_model_dt.predict(X_train)
+y_test_pred_dt = best_model_dt.predict(X_test)
+
+# Model 3 - Random Forest
+random_forest = RandomForestClassifier(random_state=42)
+param_grid_rf = {
+    'n_estimators': [10, 30, 50, 100],
+    'max_depth': [None, 10, 20, 30],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1, 2, 4],
+    'max_features': ['sqrt', 'log2']
+}
+grid_search_rf = GridSearchCV(random_forest, param_grid_rf, cv=3, scoring='neg_mean_absolute_error', n_jobs=-1)
+grid_search_rf.fit(X_train, y_train)
+best_model_rf = grid_search_rf.best_estimator_
+#print("Best Random Forest Model:", best_model_rf)
+y_train_pred_rf = best_model_rf.predict(X_train)
+y_test_pred_rf = best_model_rf.predict(X_test)
+
+#Step 5: Model Performance Analysis
+  
+#SVC Model Performance 
 for i in range(5):
-   print("Predictions:", y_pred_train1[i], "Actual values:", y_train[i])
+   print("(SVC) Step Predictions:", y_train_pred_svc[i], "(SVC) Step Actual values:", y_train[i])
 
-mae_train1 = mean_absolute_error(y_pred_train1, y_train)
-print("Model 1 training MAE is: ", round(mae_train1,2))   
+f1_train_SVC = f1_score(y_train, y_train_pred_svc, average='weighted')
+precision_train_SVC = precision_score(y_train, y_train_pred_svc, average='weighted')
+accuracy_train_SVC = accuracy_score(y_train, y_train_pred_svc)
 
-# """Cross Validation Model 1"""
-cv_scores_model1 = cross_val_score(my_model1, X_train, y_train, cv=5, scoring='neg_mean_absolute_error')
-cv_mae1 = -cv_scores_model1.mean()
-print("Model 1 Mean Absolute Error (CV):", round(cv_mae1, 2))
+print("SVC Training Set Evaluation:")
+print("F1 Score: ", f1_train_SVC)
+print("Precision: ", precision_train_SVC)
+print("Accuracy: ", accuracy_train_SVC)
 
-my_model2=LogisticRegression()
-my_model2.fit(X_train,y_train)
+# Decision Tree Model Performance Analysis
+for i in range(5):
+   print("(DT) Step Predictions:", y_train_pred_dt[i], "(DT) Step Actual values:", y_train[i])
 
+f1_train_DT = f1_score(y_train, y_train_pred_dt, average='weighted')
+precision_train_DT = precision_score(y_train, y_train_pred_dt, average='weighted')
+accuracy_train_DT = accuracy_score(y_train, y_train_pred_dt)
 
-#Extra notes
-#x_col=df[['X','Y','Z']]
-#y_col=df['Step']
+print("Decision Tree Set Evaluation:")
+print("F1 Score: ", f1_train_DT)
+print("Precision: ", precision_train_DT)
+print("Accuracy: ", accuracy_train_DT)
 
-#corr=corr.drop(['Step'],axis='columns')
-#corr=corr.drop(['Step'],axis='rows')
+# Random Forest Model Performance Analysis
+for i in range(5):
+   print("(RF) Step Predictions:", y_train_pred_rf[i], "(RF) Step Actual values:", y_train[i])
 
-#X_train, X_test, y_train, y_test = train_test_split(x_col, y_col, test_size=0.2, stratify=y_col, random_state=42)
+f1_train_RF = f1_score(y_train, y_train_pred_rf, average='weighted')
+precision_train_RF = precision_score(y_train, y_train_pred_rf, average='weighted')
+accuracy_train_RF = accuracy_score(y_train, y_train_pred_rf)
+
+print("Random Forest Set Evaluation:")
+print("F1 Score: ", f1_train_RF)
+print("Precision: ",precision_train_RF)
+print("Accuracy: ", accuracy_train_RF)
+
+# Plot confusion matrix rf
+conf_matrix_train_RF = confusion_matrix(y_train, y_train_pred_rf)
+
+plt.figure(figsize=(8, 6))
+sns.heatmap(conf_matrix_train_RF, annot=True, fmt='d', cmap='Blues', cbar=False)
+plt.title("Confusion Matrix - Training Data")
+plt.xlabel("Predicted Labels")
+plt.ylabel("True Labels")
+plt.show()
+
+#Step 6: Stacked Model Performance Analysis
+
+stacking_model = StackingClassifier(
+    estimators=[('svc', best_model_svc), ('rf', best_model_rf)],
+    final_estimator=LogisticRegression()
+)
+
+stacking_model.fit(X_train, y_train)
+
+y_train_pred_stacked = stacking_model.predict(X_train)
+y_test_pred_stacked = stacking_model.predict(X_test)
+
+f1_train_stacked = f1_score(y_train, y_train_pred_stacked, average='weighted')
+precision_train_stacked = precision_score(y_train, y_train_pred_stacked, average='weighted')
+accuracy_train_stacked = accuracy_score(y_train, y_train_pred_stacked)
+
+print("Stacking Classifier Training Set Evaluation:")
+print("F1 Score: ", f1_train_stacked)
+print("Precision: ", precision_train_stacked)
+print("Accuracy: ", accuracy_train_stacked)
+
+#stacked confusion matrix 
+conf_matrix_train_stacked = confusion_matrix(y_train, y_train_pred_stacked)
+
+plt.figure(figsize=(8, 6))
+sns.heatmap(conf_matrix_train_stacked, annot=True, fmt='d', cmap='Blues', cbar=False)
+plt.title("Confusion Matrix - Stacked Model (Training Data)")
+plt.xlabel("Predicted Labels")
+plt.ylabel("True Labels")
+plt.show()
+
+#Step 7: Model Evaluation
+
+svc_model_file = "best_svc_model.pkl"
+joblib.dump(best_model_svc, svc_model_file)
+print(f"SVC model saved as {svc_model_file}")
+
+loaded_svc_model = joblib.load(svc_model_file)
+
+coordinates = np.array([
+    [9.375, 3.0625, 1.51],
+    [6.995, 5.125, 0.3875],
+    [0, 3.0625, 1.93],
+    [9.4, 3, 1.8],
+    [9.4, 3, 1.3]
+])
+
+predictions_svc = loaded_svc_model.predict(coordinates)
+
+print("Predicted Maintenance Steps (SVC Model):")
+print(predictions_svc)
+
+# TA-DAAA THE END !!!!!
