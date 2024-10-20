@@ -181,9 +181,9 @@ conf_matrix_train_RF = confusion_matrix(y_train, y_train_pred_rf)
 
 plt.figure(figsize=(8, 6))
 sns.heatmap(conf_matrix_train_RF, annot=True, fmt='d', cmap='Blues', cbar=False)
-plt.title("Confusion Matrix - Training Data")
-plt.xlabel("Predicted Labels")
-plt.ylabel("True Labels")
+plt.title("Random Forest Confusion Matrix")
+plt.xlabel("Predicted Step")
+plt.ylabel("True Step")
 plt.show()
 
 #Step 6: Stacked Model Performance Analysis
@@ -215,9 +215,9 @@ conf_matrix_train_stacked = confusion_matrix(y_train, y_train_pred_stacked)
 
 plt.figure(figsize=(8, 6))
 sns.heatmap(conf_matrix_train_stacked, annot=True, fmt='d', cmap='Blues', cbar=False)
-plt.title("Confusion Matrix - Stacked Model (Training Data)")
-plt.xlabel("Predicted Labels")
-plt.ylabel("True Labels")
+plt.title("Stacked Model Confusion Matrix ")
+plt.xlabel("Predicted Step")
+plt.ylabel("True Step")
 plt.show()
 
 #Step 7: Model Evaluation
