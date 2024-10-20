@@ -103,7 +103,7 @@ best_model_rf = grid_search_rf.best_estimator_
 y_train_pred_rf = best_model_rf.predict(X_train)
 y_test_pred_rf = best_model_rf.predict(X_test)
 
-# Model 4 -  SVC RandomizedSearchCV Model
+# Model 4 -  SVM RandomizedSearchCV 
 svc_random = SVC()
 param_grid_svc_random = {
     'kernel': ['linear', 'rbf'],
@@ -115,7 +115,7 @@ random_search_svc.fit(X_train, y_train)
 best_model_svc_random = random_search_svc.best_estimator_
 y_train_pred_svc_random = best_model_svc.predict(X_train)
 y_test_pred_svc_random = best_model_svc.predict(X_test)
-print("Best SVM Model using RandomizedSearchCV:", best_model_svc_random)
+#print("Best SVM Model using RandomizedSearchCV:", best_model_svc_random)
 
 #Step 5: Model Performance Analysis
   
@@ -128,10 +128,11 @@ precision_train_SVC = precision_score(y_train, y_train_pred_svc, average='weight
 accuracy_train_SVC = accuracy_score(y_train, y_train_pred_svc)
 
 
-print("SVC Training Set Evaluation:")
+print("\n SVC Training Set Evaluation:")
 print("F1 Score: ", f1_train_SVC)
 print("Precision: ", precision_train_SVC)
 print("Accuracy: ", accuracy_train_SVC)
+print("\n")
 
 # Decision Tree Model Performance 
 for i in range(5):
@@ -142,7 +143,7 @@ precision_train_DT = precision_score(y_train, y_train_pred_dt, average='weighted
 accuracy_train_DT = accuracy_score(y_train, y_train_pred_dt)
 
 
-print("Decision Tree Set Evaluation:")
+print("\nDecision Tree Set Evaluation:")
 print("F1 Score: ", f1_train_DT)
 print("Precision: ", precision_train_DT)
 print("Accuracy: ", accuracy_train_DT)
@@ -156,7 +157,7 @@ precision_train_RF = precision_score(y_train, y_train_pred_rf, average='weighted
 accuracy_train_RF = accuracy_score(y_train, y_train_pred_rf)
 
 
-print("Random Forest Set Evaluation:")
+print("\nRandom Forest Set Evaluation:")
 print("F1 Score: ", f1_train_RF)
 print("Precision: ",precision_train_RF)
 print("Accuracy: ", accuracy_train_RF)
@@ -170,7 +171,7 @@ precision_train_random = precision_score(y_train, y_train_pred_svc_random, avera
 accuracy_train_random = accuracy_score(y_train, y_train_pred_svc_random)
 
 
-print("Randomized SVC Set Evaluation:")
+print("\nRandomized SVC Set Evaluation:")
 print("F1 Score: ", f1_train_random)
 print("Precision: ",precision_train_random)
 print("Accuracy: ", accuracy_train_random)
@@ -186,7 +187,6 @@ plt.ylabel("True Labels")
 plt.show()
 
 #Step 6: Stacked Model Performance Analysis
-
 stacking_model = StackingClassifier(
     estimators=[('svc', best_model_svc), ('rf', best_model_rf)],
     final_estimator=LogisticRegression()
@@ -197,11 +197,14 @@ stacking_model.fit(X_train, y_train)
 y_train_pred_stacked = stacking_model.predict(X_train)
 y_test_pred_stacked = stacking_model.predict(X_test)
 
+#for i in range(5):
+   #print("(Stacked Model) Step Predictions:", y_train_pred_stacked[i], "(Stacked Model) Step Actual values:", y_train[i])
+
 f1_train_stacked = f1_score(y_train, y_train_pred_stacked, average='weighted')
 precision_train_stacked = precision_score(y_train, y_train_pred_stacked, average='weighted')
 accuracy_train_stacked = accuracy_score(y_train, y_train_pred_stacked)
 
-#Printing Evaluation Set
+
 print("Stacking Classifier Training Set Evaluation:")
 print("F1 Score: ", f1_train_stacked)
 print("Precision: ", precision_train_stacked)
