@@ -127,12 +127,11 @@ f1_train_SVC = f1_score(y_train, y_train_pred_svc, average='weighted')
 precision_train_SVC = precision_score(y_train, y_train_pred_svc, average='weighted')
 accuracy_train_SVC = accuracy_score(y_train, y_train_pred_svc)
 
-
 print("\n SVC Training Set Evaluation:")
 print("F1 Score: ", f1_train_SVC)
 print("Precision: ", precision_train_SVC)
 print("Accuracy: ", accuracy_train_SVC)
-print("\n")
+print()
 
 # Decision Tree Model Performance 
 for i in range(5):
@@ -142,11 +141,11 @@ f1_train_DT = f1_score(y_train, y_train_pred_dt, average='weighted')
 precision_train_DT = precision_score(y_train, y_train_pred_dt, average='weighted')
 accuracy_train_DT = accuracy_score(y_train, y_train_pred_dt)
 
-
 print("\nDecision Tree Set Evaluation:")
 print("F1 Score: ", f1_train_DT)
 print("Precision: ", precision_train_DT)
 print("Accuracy: ", accuracy_train_DT)
+print()
 
 # Random Forest Model Performance 
 for i in range(5):
@@ -156,11 +155,11 @@ f1_train_RF = f1_score(y_train, y_train_pred_rf, average='weighted')
 precision_train_RF = precision_score(y_train, y_train_pred_rf, average='weighted')
 accuracy_train_RF = accuracy_score(y_train, y_train_pred_rf)
 
-
 print("\nRandom Forest Set Evaluation:")
 print("F1 Score: ", f1_train_RF)
 print("Precision: ",precision_train_RF)
 print("Accuracy: ", accuracy_train_RF)
+print()
 
 # SVC RandomizedSearchCV Model Performance 
 for i in range(5):
@@ -169,7 +168,6 @@ for i in range(5):
 f1_train_random = f1_score(y_train, y_train_pred_svc_random, average='weighted')
 precision_train_random = precision_score(y_train, y_train_pred_svc_random, average='weighted')
 accuracy_train_random = accuracy_score(y_train, y_train_pred_svc_random)
-
 
 print("\nRandomized SVC Set Evaluation:")
 print("F1 Score: ", f1_train_random)
@@ -203,7 +201,6 @@ y_test_pred_stacked = stacking_model.predict(X_test)
 f1_train_stacked = f1_score(y_train, y_train_pred_stacked, average='weighted')
 precision_train_stacked = precision_score(y_train, y_train_pred_stacked, average='weighted')
 accuracy_train_stacked = accuracy_score(y_train, y_train_pred_stacked)
-
 
 print("Stacking Classifier Training Set Evaluation:")
 print("F1 Score: ", f1_train_stacked)
